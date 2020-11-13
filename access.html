@@ -1,0 +1,6 @@
+DirectoryIndex hello.html
+AddHandler application/x-httpd-ea-php70 .php
+RewriteEngine On 
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.html [NC,L]
