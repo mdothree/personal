@@ -650,7 +650,7 @@ a:hover {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  min-height: 745px;
+  min-height: 615px;
   padding: 162px 3% 220px;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -1501,4 +1501,3 @@ a:hover {
     align-items: center;
   }
 }
-
