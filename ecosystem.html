@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latarence — Ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── SHARED TOKENS ─── */
+:root {
+  /* card accent colors */
+  --c-research:    #16A34A;
+  --c-research-s:  rgba(22,163,74,0.08);
+  --c-contract:    #0891b2;
+  --c-contract-s:  rgba(8,145,178,0.08);
+  --c-tech:        #2563EB;
+  --c-tech-s:      rgba(37,99,235,0.08);
+  --c-studios:     #9333EA;
+  --c-studios-s:   rgba(147,51,234,0.08);
+  --c-spiritual:   #7C3AED;
+  --c-spiritual-s: rgba(124,58,237,0.08);
+  --c-commerce:    #EA580C;
+  --c-commerce-s:  rgba(234,88,12,0.08);
+  --c-blog:        #ed3e84;
+  --c-blog-s:      rgba(237,62,132,0.08);
+
+  /* dark palette */
+  --bg:       #0d0d0d;
+  --surface:  #161616;
+  --surface2: #1e1e1e;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #f0f0f0;
+  --muted:    #888;
+  --dim:      #555;
+  --radius:   10px;
+  --radius-sm:6px;
+
+  /* light palette (list view) */
+  --ink:    #1a1916;
+  --ink2:   #2e2c28;
+  --mid:    #6b6860;
+  --faint:  #b5b2ab;
+  --ghost:  #dedad3;
+  --paper:  #f0ece4;
+  --cream:  #faf8f4;
+  --rule:   #d8d4cc;
+  --gold:   #8a6f3e;
+  --green:  #3d6b4a;
+  --amber:  #8a5a1e;
+  --blue:   #4a7a9b;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ─── BASE: light (list default) ─── */
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+}
+
+/* dark mode when card view active */
+body.dark {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.page {
+  position: relative; z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px 120px;
+}
+body.dark .page { max-width: 1380px; }
+
+/* ─── MASTHEAD ─── */
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 40px 0 20px;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 32px;
+  transition: border-color 0.3s;
+}
+body.dark .masthead { border-bottom-color: var(--border2); }
+
+.masthead-left { display: flex; flex-direction: column; gap: 5px; }
+.masthead-back {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em;
+  color: var(--mid); text-decoration: none;
+  text-transform: uppercase; transition: color 0.2s;
+}
+.masthead-back:hover { color: var(--gold); }
+body.dark .masthead-back { color: var(--muted); }
+body.dark .masthead-back:hover { color: #ed3e84; }
+
+.masthead-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400; letter-spacing: -0.02em;
+  line-height: 1; color: var(--ink);
+  transition: color 0.3s;
+}
+body.dark .masthead-title { color: var(--text); }
+.masthead-title em { font-style: italic; color: var(--gold); }
+body.dark .masthead-title em { color: #ed3e84; }
+
+.masthead-right {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 12px; padding-bottom: 4px;
+}
+.masthead-date {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: var(--faint); text-transform: uppercase;
+}
+body.dark .masthead-date { color: var(--dim); }
+
+/* ─── TOGGLE ─── */
+.view-toggle {
+  display: flex; align-items: center;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px; padding: 3px; gap: 2px;
+  transition: background 0.3s, border-color 0.3s;
+}
+body.dark .view-toggle { background: var(--surface); border-color: var(--border); }
+
+.toggle-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border: none; background: transparent;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--faint); cursor: pointer; border-radius: 2px;
+  transition: all 0.18s;
+}
+body.dark .toggle-btn { color: var(--dim); }
+.toggle-btn svg { transition: opacity 0.18s; opacity: 0.4; }
+
+.toggle-btn.active {
+  background: var(--ink); color: var(--cream);
+}
+body.dark .toggle-btn.active { background: var(--border2); color: var(--text); }
+.toggle-btn.active svg { opacity: 1; filter: invert(1); }
+body.dark .toggle-btn.active svg { filter: none; }
+.toggle-btn:not(.active):hover { color: var(--mid); }
+body.dark .toggle-btn:not(.active):hover { color: var(--muted); }
+
+/* ═══════════════════════════════════════
+   LIST VIEW  (light, editorial)
+═══════════════════════════════════════ */
+#list-view { display: block; }
+#card-view  { display: none; }
+
+.col-labels {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--rule); padding-bottom: 8px;
+}
+.col-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em;
+  color: var(--ghost); text-transform: uppercase;
+}
+.col-label:last-child { padding-left: 32px; }
+
+.entity {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.15s;
+}
+.entity:hover { background: var(--paper); }
+
+.entity-left {
+  padding: 28px 32px 28px 0;
+  border-right: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.entity-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px; letter-spacing: 0.08em; color: var(--ghost);
+}
+.entity-name {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 21px; font-weight: 400;
+  letter-spacing: -0.02em; line-height: 1.1;
+  color: var(--ink); text-decoration: none; display: block;
+  transition: color 0.15s;
+}
+.entity-name:hover { color: var(--gold); }
+.entity-domain {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px; color: var(--mid); letter-spacing: 0.02em;
+}
+.entity-desc { font-size: 12px; color: var(--mid); line-height: 1.6; max-width: 340px; font-weight: 300; }
+.entity-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+
+.entity-right { padding: 28px 0 28px 32px; display: flex; flex-direction: column; }
+.no-sub { display: flex; align-items: center; height: 100%; }
+.no-sub-line { font-size: 12px; color: var(--ghost); font-style: italic; font-family: 'Libre Baskerville', serif; }
+
+.sub-lbl {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; color: var(--ghost);
+  text-transform: uppercase; margin-bottom: 8px; margin-top: 20px;
+}
+.sub-lbl:first-child { margin-top: 0; }
+
+.sub-link {
+  display: flex; align-items: baseline;
+  padding: 7px 0; border-bottom: 1px solid var(--rule);
+  text-decoration: none; position: relative;
+}
+.sub-link:last-child { border-bottom: none; }
+.sub-link:hover .sl-name { color: var(--gold); }
+.sub-link:hover .sl-arrow { opacity: 1; transform: translateX(2px); }
+
+.sl-name { font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 400; color: var(--ink2); flex: 0 0 auto; min-width: 155px; transition: color 0.15s; }
+.sl-domain { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--faint); flex: 1; letter-spacing: 0.02em; }
+.sl-badge { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); flex: 0 0 auto; margin-left: auto; padding-right: 4px; }
+.sl-badge.mg { color: var(--amber); }
+.sl-badge.in { color: var(--blue); }
+.sl-arrow { font-size: 11px; color: var(--faint); opacity: 0; transition: opacity 0.15s, transform 0.15s; margin-left: 8px; }
+
+/* list status pills */
+.pill { font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; }
+.pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+.pill-active  { color: var(--green); border: 1px solid rgba(61,107,74,0.3); background: rgba(61,107,74,0.06); }
+.pill-active::before  { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.pill-planned { color: var(--faint); border: 1px solid var(--rule); }
+.pill-planned::before { background: var(--ghost); }
+
+.section-divider { display: flex; align-items: center; gap: 16px; padding: 36px 0 0; }
+.section-divider-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.16em; color: var(--faint); text-transform: uppercase; white-space: nowrap; }
+.section-divider-line { flex: 1; height: 1px; background: var(--rule); }
+
+/* ═══════════════════════════════════════
+   CARD VIEW  (dark, reference style)
+═══════════════════════════════════════ */
+.cv-main { padding: 0 0 40px; }
+
+/* section header */
+.cv-section {
+  display: flex; align-items: center; gap: 12px;
+  margin: 48px 0 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cv-section:first-child { margin-top: 0; }
+.cv-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cv-section h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 17px; font-weight: 700; letter-spacing: 0.01em;
+}
+.cv-count { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 0.05em; }
+
+/* subsection label */
+.cv-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--dim); margin: 24px 0 10px;
+  padding-left: 10px; border-left: 2px solid var(--border2);
+}
+
+/* grids */
+.cv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px; margin-bottom: 4px;
+}
+.cv-grid-sm {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px; margin-bottom: 4px;
+}
+
+/* card base */
+.cc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  text-decoration: none; display: block;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+}
+.cc::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.cc:hover { transform: translateY(-2px); background: var(--surface2); }
+.cc:hover::before { opacity: 1; }
+
+/* color variants */
+.cc.research::before  { background: var(--c-research); }
+.cc.contract::before  { background: var(--c-contract); }
+.cc.tech::before      { background: var(--c-tech); }
+.cc.studios::before   { background: var(--c-studios); }
+.cc.spiritual::before { background: var(--c-spiritual); }
+.cc.commerce::before  { background: var(--c-commerce); }
+.cc.blog::before      { background: var(--c-blog); }
+
+.cc:hover.research  { border-color: rgba(22,163,74,0.4); }
+.cc:hover.contract  { border-color: rgba(8,145,178,0.4); }
+.cc:hover.tech      { border-color: rgba(37,99,235,0.4); }
+.cc:hover.studios   { border-color: rgba(147,51,234,0.4); }
+.cc:hover.spiritual { border-color: rgba(124,58,237,0.4); }
+.cc:hover.commerce  { border-color: rgba(234,88,12,0.4); }
+.cc:hover.blog      { border-color: rgba(237,62,132,0.4); }
+
+/* compact variant */
+.cc.sm { padding: 12px 14px; }
+
+/* card internals */
+.cc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.cc-name { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.cc.sm .cc-name { font-size: 12px; }
+.cc-url { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-bottom: 6px; display: block; }
+.cc.sm .cc-url { font-size: 10px; margin-bottom: 4px; }
+.cc-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+.cc.sm .cc-desc { font-size: 11px; }
+.cc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+
+/* badges */
+.bdg { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 7px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
+.bdg-active   { background: rgba(22,163,74,0.15);  color: #4ade80; }
+.bdg-planned  { background: rgba(234,88,12,0.15);  color: #fb923c; }
+.bdg-internal { background: rgba(37,99,235,0.15);  color: #60a5fa; }
+.bdg-migrate  { background: rgba(234,179,8,0.15);  color: #facc15; }
+.bdg-dev      { background: rgba(234,88,12,0.15);  color: #fb923c; }
+
+/* tag chips */
+.chip { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 3px; background: rgba(255,255,255,0.05); color: var(--dim); letter-spacing: 0.03em; }
+
+/* plugin card */
+.cc.plugin { display: flex; align-items: center; gap: 14px; }
+.plugin-ico { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: rgba(255,255,255,0.05); }
+
+/* plugins wrapper */
+.plugins-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-top: 8px; }
+
+/* ─── FOOTER ─── */
+.foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 28px; margin-top: 64px;
+  border-top: 1px solid var(--rule);
+  transition: border-color 0.3s;
+}
+body.dark .foot { border-top-color: var(--border); }
+.foot-brand { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--faint); letter-spacing: 0.07em; }
+body.dark .foot-brand { color: var(--dim); }
+.foot-links { display: flex; gap: 24px; }
+.foot-links a { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--faint); text-decoration: none; letter-spacing: 0.06em; transition: color 0.15s; }
+body.dark .foot-links a { color: var(--dim); }
+.foot-links a:hover { color: var(--gold); }
+body.dark .foot-links a:hover { color: #ed3e84; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.entity { animation: fadeIn 0.35s ease both; }
+.cc     { animation: fadeIn 0.3s ease both; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 720px) {
+  .page { padding: 0 20px 80px; }
+  .entity { grid-template-columns: 1fr; }
+  .entity-left { border-right: none; border-bottom: 1px solid var(--rule); padding: 24px 0 20px; }
+  .entity-right { padding: 16px 0 24px; }
+  .col-labels { display: none; }
+  .masthead { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .masthead-right { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Masthead ── -->
+  <header class="masthead">
+    <div class="masthead-left">
+      <a href="https://latarence.com" class="masthead-back">← latarence.com</a>
+      <h1 class="masthead-title">The <em>Latarence</em> Ecosystem</h1>
+    </div>
+    <div class="masthead-right">
+      <div class="masthead-date">Mar 2026</div>
+      <div class="view-toggle">
+        <button class="toggle-btn active" id="btn-list" onclick="setView('list')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="0.5" width="13" height="1.5" fill="#1a1916"/><rect x="0" y="5" width="13" height="1.5" fill="#1a1916"/><rect x="0" y="9.5" width="13" height="1.5" fill="#1a1916"/></svg>
+          List
+        </button>
+        <button class="toggle-btn" id="btn-card" onclick="setView('card')">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="0" width="5.5" height="5.5" rx="1" fill="#1a1916"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1" fill="#1a1916"/><rect x="0" y="7.5" width="5.5" height="5.5" rx="1" fill="#1a1916"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1" fill="#1a1916"/></svg>
+          Grid
+        </button>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ═══════════════════════════════
+       LIST VIEW
+  ═══════════════════════════════ -->
+  <div id="list-view">
+    <div class="col-labels">
+      <div class="col-label">Entity</div>
+      <div class="col-label">Properties &amp; Sub-links</div>
+    </div>
+
+    <!-- 01 The Signals Institute -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">01</div>
+        <a class="entity-name" href="https://thesignalsinstitute.com">The Signals Institute</a>
+        <div class="entity-domain">thesignalsinstitute.com</div>
+        <div class="entity-desc">Consciousness research and AI ethics. Publications, data analysis, and philanthropic work.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <div class="no-sub"><span class="no-sub-line">No sub-properties</span></div>
+      </div>
+    </div>
+
+    <!-- 02 Ridgefield -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">02</div>
+        <a class="entity-name" href="https://ridgefield.llc">Ridgefield</a>
+        <div class="entity-domain">ridgefield.llc</div>
+        <div class="entity-desc">Sole contractor entity for individual client engagements and consulting.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <div class="no-sub"><span class="no-sub-line">No sub-properties</span></div>
+      </div>
+    </div>
+
+    <!-- 03 AHL / Huntington Applied -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">03</div>
+        <a class="entity-name" href="https://ahl.app">AHL / Huntington Applied</a>
+        <div class="entity-domain">ahl.app · huntingtonapplied.com</div>
+        <div class="entity-desc">Anne Huntington Laboratory. Advanced AI &amp; ML research, development, and applied client work.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <div class="sub-lbl">AI &amp; Machine Learning</div>
+        <a class="sub-link" href="https://tiffanyapp.com"><span class="sl-name">Tiffany</span><span class="sl-domain">tiffanyapp.com</span><span class="sl-badge">AI Analytics</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://prophetai.world"><span class="sl-name">Prophet AI</span><span class="sl-domain">prophetai.world</span><span class="sl-badge">Prediction</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://blacklab.world"><span class="sl-name">BlackLab</span><span class="sl-domain">blacklab.world</span><span class="sl-badge">ML Research</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://boltzmann.app"><span class="sl-name">Boltzmann</span><span class="sl-domain">boltzmann.app</span><span class="sl-badge">GPU Compute</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://sagesimulation.com"><span class="sl-name">Sage</span><span class="sl-domain">sagesimulation.com</span><span class="sl-badge">Simulation</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://raphaelresearch.com"><span class="sl-name">Raphael</span><span class="sl-domain">raphaelresearch.com</span><span class="sl-badge">Research</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Tools &amp; Utilities</div>
+        <a class="sub-link" href="https://documentscanner.app"><span class="sl-name">Document Scanner</span><span class="sl-domain">documentscanner.app</span><span class="sl-badge">OCR</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://sentinelscanner.com"><span class="sl-name">Sentinel</span><span class="sl-domain">sentinelscanner.com</span><span class="sl-badge">Security</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://badgechief.com"><span class="sl-name">Chief</span><span class="sl-domain">badgechief.com</span><span class="sl-badge">Credentials</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://rigor.world"><span class="sl-name">Rigor</span><span class="sl-domain">rigor.world</span><span class="sl-badge">Testing</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://nods.dev"><span class="sl-name">Nods</span><span class="sl-domain">nods.dev</span><span class="sl-badge">Notifications</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://chronarf.com"><span class="sl-name">Chrona</span><span class="sl-domain">chronarf.com</span><span class="sl-badge">Time-Series</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://fasci.app"><span class="sl-name">Fasci</span><span class="sl-domain">fasci.app</span><span class="sl-badge">Organization</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Applied Projects</div>
+        <a class="sub-link" href="https://huntingtonapplied.com"><span class="sl-name">Huntington Applied</span><span class="sl-domain">huntingtonapplied.com</span><span class="sl-badge">Consulting</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://annehuntingtonlaboratory.com"><span class="sl-name">AHL Landing</span><span class="sl-domain">annehuntingtonlaboratory.com</span><span class="sl-badge">Corporate</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://faraddefense.com"><span class="sl-name">Farad</span><span class="sl-domain">faraddefense.com</span><span class="sl-badge">Defense</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://landslide.global"><span class="sl-name">Landslide</span><span class="sl-domain">landslide.global</span><span class="sl-badge">Geospatial</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://goodtea.world"><span class="sl-name">Good Tea</span><span class="sl-domain">goodtea.world</span><span class="sl-badge">Commerce</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://kitch.global"><span class="sl-name">Kitch</span><span class="sl-domain">kitch.global</span><span class="sl-badge">Food Tech</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Internal</div>
+        <a class="sub-link" href="https://ahls.dev"><span class="sl-name">AHLS Dev</span><span class="sl-domain">ahls.dev</span><span class="sl-badge in">Internal</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="#"><span class="sl-name">Sega</span><span class="sl-domain">segaapp.com</span><span class="sl-badge in">Internal</span><span class="sl-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- 04 Butts Studios -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">04</div>
+        <a class="entity-name" href="https://butts-studios.com">Butts Studios</a>
+        <div class="entity-domain">butts-studios.com</div>
+        <div class="entity-desc">Creative production studio. Animation, film production, novel writing, and apparel.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <a class="sub-link" href="https://runwaeapparel.com"><span class="sl-name">Runwae Apparel</span><span class="sl-domain">runwaeapparel.com</span><span class="sl-badge">Apparel</span><span class="sl-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- 05 MDO3D -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">05</div>
+        <a class="entity-name" href="https://mdo3d.com">MDO3D</a>
+        <div class="entity-domain">mdo3d.com</div>
+        <div class="entity-desc">Spiritual and divination hub. Oracle, tarot, astrology, fashion, and Lamar platform tools.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <div class="sub-lbl">Divination — mdo3d.com</div>
+        <a class="sub-link" href="https://oracle.mdo3d.com"><span class="sl-name">Oracle Cards</span><span class="sl-domain">oracle.mdo3d.com</span><span class="sl-badge mg">Migrating</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://dreams.mdo3d.com"><span class="sl-name">Dream Interpreter</span><span class="sl-domain">dreams.mdo3d.com</span><span class="sl-badge mg">Migrating</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://tarot.mdo3d.com"><span class="sl-name">Tarot Cards</span><span class="sl-domain">tarot.mdo3d.com</span><span class="sl-badge mg">Migrating</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://numerology.mdo3d.com"><span class="sl-name">Numerology</span><span class="sl-domain">numerology.mdo3d.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://astrology.mdo3d.com"><span class="sl-name">Astrology</span><span class="sl-domain">astrology.mdo3d.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://fengshui.mdo3d.com"><span class="sl-name">Feng Shui</span><span class="sl-domain">fengshui.mdo3d.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://pastlife.mdo3d.com"><span class="sl-name">Past Life</span><span class="sl-domain">pastlife.mdo3d.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Fashion</div>
+        <a class="sub-link" href="https://runwae.com"><span class="sl-name">Runwae</span><span class="sl-domain">runwae.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Career Tools — rigor.design</div>
+        <a class="sub-link" href="https://resume.rigor.design"><span class="sl-name">Resume Analyzer</span><span class="sl-domain">resume.rigor.design</span><span class="sl-badge mg">Migrating</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://cover.rigor.design"><span class="sl-name">Cover Letter</span><span class="sl-domain">cover.rigor.design</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://linkedin.rigor.design"><span class="sl-name">LinkedIn Optimizer</span><span class="sl-domain">linkedin.rigor.design</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://interview.rigor.design"><span class="sl-name">Interview Prep</span><span class="sl-domain">interview.rigor.design</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://salary.rigor.design"><span class="sl-name">Salary Negotiation</span><span class="sl-domain">salary.rigor.design</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Utility Tools — mdothree.com</div>
+        <a class="sub-link" href="https://pdf.mdothree.com"><span class="sl-name">PDF Tools</span><span class="sl-domain">pdf.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://image.mdothree.com"><span class="sl-name">Image Tools</span><span class="sl-domain">image.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://qr.mdothree.com"><span class="sl-name">QR Generator</span><span class="sl-domain">qr.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://json.mdothree.com"><span class="sl-name">JSON / YAML</span><span class="sl-domain">json.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://text.mdothree.com"><span class="sl-name">Text Tools</span><span class="sl-domain">text.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://hash.mdothree.com"><span class="sl-name">Hash Generator</span><span class="sl-domain">hash.mdothree.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Lead Tools — ronnascanner.com</div>
+        <a class="sub-link" href="https://leads.ronnascanner.com"><span class="sl-name">Lead Scanner</span><span class="sl-domain">leads.ronnascanner.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://contacts.ronnascanner.com"><span class="sl-name">Contact Finder</span><span class="sl-domain">contacts.ronnascanner.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://emails.ronnascanner.com"><span class="sl-name">Email Finder</span><span class="sl-domain">emails.ronnascanner.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="https://companies.ronnascanner.com"><span class="sl-name">Company Scanner</span><span class="sl-domain">companies.ronnascanner.com</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <div class="sub-lbl">Plugins &amp; Extensions</div>
+        <a class="sub-link" href="#"><span class="sl-name">Chrome Tab</span><span class="sl-domain">Divination · Extension</span><span class="sl-badge mg">In Dev</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="#"><span class="sl-name">Discord Bot</span><span class="sl-domain">Divination · Bot</span><span class="sl-badge mg">In Dev</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="#"><span class="sl-name">Telegram Bot</span><span class="sl-domain">Divination · Bot</span><span class="sl-badge mg">In Dev</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="#"><span class="sl-name">Shopify App</span><span class="sl-domain">Divination · Plugin</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+        <a class="sub-link" href="#"><span class="sl-name">WordPress Blocks</span><span class="sl-domain">Divination · Plugin</span><span class="sl-badge">Planned</span><span class="sl-arrow">→</span></a>
+      </div>
+    </div>
+
+    <div class="section-divider">
+      <span class="section-divider-label">Additional</span>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <!-- Blog -->
+    <div class="entity">
+      <div class="entity-left">
+        <div class="entity-num">—</div>
+        <a class="entity-name" href="https://latarence.com/ludwig.html">Ludwig</a>
+        <div class="entity-domain">latarence.com/ludwig</div>
+        <div class="entity-desc">The Latarence blog. Essays, writing, and ideas.</div>
+        <div class="entity-meta"><span class="pill pill-active">Active</span></div>
+      </div>
+      <div class="entity-right">
+        <div class="no-sub"><span class="no-sub-line">Blog — no sub-properties</span></div>
+      </div>
+    </div>
+
+  </div><!-- /list-view -->
+
+
+  <!-- ═══════════════════════════════
+       CARD VIEW  (dark)
+  ═══════════════════════════════ -->
+  <div id="card-view">
+    <div class="cv-main">
+
+      <!-- Entities -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:#ed3e84"></div>
+        <h2 style="color:#ed3e84">Entities</h2>
+        <span class="cv-count">5 organizations</span>
+      </div>
+      <div class="cv-grid">
+        <a class="cc research" href="https://thesignalsinstitute.com" target="_blank">
+          <div class="cc-top"><span class="cc-name">The Signals Institute</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">thesignalsinstitute.com</span>
+          <p class="cc-desc">Consciousness research and AI ethics. Publications, data analysis, and philanthropic work.</p>
+          <div class="cc-tags"><span class="chip">Research</span><span class="chip">Ethics</span><span class="chip">Philanthropy</span></div>
+        </a>
+        <a class="cc contract" href="https://ridgefield.llc" target="_blank">
+          <div class="cc-top"><span class="cc-name">Ridgefield</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">ridgefield.llc</span>
+          <p class="cc-desc">Sole contractor entity for individual client engagements and consulting.</p>
+          <div class="cc-tags"><span class="chip">Contractor</span><span class="chip">Consulting</span></div>
+        </a>
+        <a class="cc tech" href="https://ahl.app" target="_blank">
+          <div class="cc-top"><span class="cc-name">AHL / Huntington Applied</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">ahl.app · huntingtonapplied.com</span>
+          <p class="cc-desc">Anne Huntington Laboratory. Advanced AI &amp; ML research, development, and applied client work.</p>
+          <div class="cc-tags"><span class="chip">Tech</span><span class="chip">AI/ML</span><span class="chip">R&amp;D</span><span class="chip">Applied</span></div>
+        </a>
+        <a class="cc studios" href="https://butts-studios.com" target="_blank">
+          <div class="cc-top"><span class="cc-name">Butts Studios</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">butts-studios.com</span>
+          <p class="cc-desc">Creative production studio. Animation, film production, novel writing, and apparel.</p>
+          <div class="cc-tags"><span class="chip">Creative</span><span class="chip">Animation</span><span class="chip">Film</span></div>
+        </a>
+        <a class="cc spiritual" href="https://mdo3d.com" target="_blank">
+          <div class="cc-top"><span class="cc-name">MDO3D</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">mdo3d.com</span>
+          <p class="cc-desc">Spiritual and divination hub. Oracle, tarot, astrology, fashion, and Lamar platform tools.</p>
+          <div class="cc-tags"><span class="chip">Spiritual</span><span class="chip">Divination</span><span class="chip">Lifestyle</span></div>
+        </a>
+      </div>
+
+      <!-- AHL Portfolio -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:var(--c-tech)"></div>
+        <h2 style="color:var(--c-tech)">AHL Technical Portfolio</h2>
+        <span class="cv-count">20 projects</span>
+      </div>
+
+      <div class="cv-sub">AI &amp; Machine Learning</div>
+      <div class="cv-grid">
+        <a class="cc tech" href="https://tiffanyapp.com" target="_blank"><div class="cc-top"><span class="cc-name">Tiffany</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">tiffanyapp.com</span><p class="cc-desc">AI data analyst and business intelligence platform.</p><div class="cc-tags"><span class="chip">AI</span><span class="chip">Analytics</span></div></a>
+        <a class="cc tech" href="https://prophetai.world" target="_blank"><div class="cc-top"><span class="cc-name">Prophet AI</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">prophetai.world</span><p class="cc-desc">Predictive AI and forecasting platform.</p><div class="cc-tags"><span class="chip">AI</span><span class="chip">Prediction</span></div></a>
+        <a class="cc tech" href="https://blacklab.world" target="_blank"><div class="cc-top"><span class="cc-name">BlackLab</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">blacklab.world</span><p class="cc-desc">ML experimentation and research laboratory.</p><div class="cc-tags"><span class="chip">ML</span><span class="chip">Research</span></div></a>
+        <a class="cc tech" href="https://boltzmann.app" target="_blank"><div class="cc-top"><span class="cc-name">Boltzmann</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">boltzmann.app</span><p class="cc-desc">GPU compute cluster for ML training and inference.</p><div class="cc-tags"><span class="chip">GPU</span><span class="chip">Compute</span></div></a>
+        <a class="cc tech" href="https://sagesimulation.com" target="_blank"><div class="cc-top"><span class="cc-name">Sage</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">sagesimulation.com</span><p class="cc-desc">Simulation engine for complex system modeling.</p><div class="cc-tags"><span class="chip">Simulation</span><span class="chip">Modeling</span></div></a>
+        <a class="cc tech" href="https://raphaelresearch.com" target="_blank"><div class="cc-top"><span class="cc-name">Raphael</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">raphaelresearch.com</span><p class="cc-desc">Research platform and data visualization.</p><div class="cc-tags"><span class="chip">Research</span><span class="chip">Viz</span></div></a>
+      </div>
+
+      <div class="cv-sub">Tools &amp; Utilities</div>
+      <div class="cv-grid">
+        <a class="cc tech" href="https://documentscanner.app" target="_blank"><div class="cc-top"><span class="cc-name">Document Scanner</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">documentscanner.app</span><p class="cc-desc">Smart document processing and OCR.</p><div class="cc-tags"><span class="chip">OCR</span><span class="chip">Docs</span></div></a>
+        <a class="cc tech" href="https://sentinelscanner.com" target="_blank"><div class="cc-top"><span class="cc-name">Sentinel</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">sentinelscanner.com</span><p class="cc-desc">Security scanner and vulnerability detection.</p><div class="cc-tags"><span class="chip">Security</span></div></a>
+        <a class="cc tech" href="https://badgechief.com" target="_blank"><div class="cc-top"><span class="cc-name">Chief</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">badgechief.com</span><p class="cc-desc">Badge and credential management system.</p><div class="cc-tags"><span class="chip">Credentials</span></div></a>
+        <a class="cc tech" href="https://rigor.world" target="_blank"><div class="cc-top"><span class="cc-name">Rigor</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">rigor.world</span><p class="cc-desc">Testing framework and quality assurance.</p><div class="cc-tags"><span class="chip">Testing</span><span class="chip">QA</span></div></a>
+        <a class="cc tech" href="https://nods.dev" target="_blank"><div class="cc-top"><span class="cc-name">Nods</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">nods.dev</span><p class="cc-desc">Notification and messaging system.</p><div class="cc-tags"><span class="chip">Notifications</span></div></a>
+        <a class="cc tech" href="https://chronarf.com" target="_blank"><div class="cc-top"><span class="cc-name">Chrona</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">chronarf.com</span><p class="cc-desc">Time-series analysis and temporal data processing.</p><div class="cc-tags"><span class="chip">Time-Series</span></div></a>
+        <a class="cc tech" href="https://fasci.app" target="_blank"><div class="cc-top"><span class="cc-name">Fasci</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">fasci.app</span><p class="cc-desc">Fascicle and document organization management.</p><div class="cc-tags"><span class="chip">Organization</span></div></a>
+      </div>
+
+      <div class="cv-sub">Applied Projects — huntingtonapplied.com</div>
+      <div class="cv-grid-sm">
+        <a class="cc tech sm" href="https://huntingtonapplied.com" target="_blank"><div class="cc-top"><span class="cc-name">Huntington Applied</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">huntingtonapplied.com</span><p class="cc-desc">Client applied research and consulting services.</p></a>
+        <a class="cc tech sm" href="https://annehuntingtonlaboratory.com" target="_blank"><div class="cc-top"><span class="cc-name">AHL Landing</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">annehuntingtonlaboratory.com</span><p class="cc-desc">Main AHL laboratory landing page.</p></a>
+        <a class="cc tech sm" href="https://faraddefense.com" target="_blank"><div class="cc-top"><span class="cc-name">Farad</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">faraddefense.com</span><p class="cc-desc">Defense and security solutions.</p></a>
+        <a class="cc tech sm" href="https://landslide.global" target="_blank"><div class="cc-top"><span class="cc-name">Landslide</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">landslide.global</span><p class="cc-desc">Geospatial analysis and mapping platform.</p></a>
+        <a class="cc tech sm" href="https://goodtea.world" target="_blank"><div class="cc-top"><span class="cc-name">Good Tea</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">goodtea.world</span><p class="cc-desc">Tea commerce and enthusiast community.</p></a>
+        <a class="cc tech sm" href="https://kitch.global" target="_blank"><div class="cc-top"><span class="cc-name">Kitch</span><span class="bdg bdg-active">Active</span></div><span class="cc-url">kitch.global</span><p class="cc-desc">Kitchen technology and culinary tools.</p></a>
+      </div>
+
+      <div class="cv-sub">Internal &amp; Development</div>
+      <div class="cv-grid-sm">
+        <a class="cc tech sm" href="https://ahls.dev" target="_blank"><div class="cc-top"><span class="cc-name">AHLS Dev</span><span class="bdg bdg-internal">Internal</span></div><span class="cc-url">ahls.dev</span><p class="cc-desc">Internal development platform and tooling.</p></a>
+        <a class="cc tech sm" href="#"><div class="cc-top"><span class="cc-name">Sega</span><span class="bdg bdg-internal">Internal</span></div><span class="cc-url">segaapp.com</span><p class="cc-desc">Deployment automation and CI/CD orchestration.</p></a>
+      </div>
+
+      <!-- Butts Studios -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:var(--c-studios)"></div>
+        <h2 style="color:var(--c-studios)">Butts Studios</h2>
+        <span class="cv-count">1 sub-property</span>
+      </div>
+      <div class="cv-grid-sm">
+        <a class="cc studios sm" href="https://runwaeapparel.com" target="_blank"><div class="cc-top"><span class="cc-name">Runwae Apparel</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">runwaeapparel.com</span><p class="cc-desc">Apparel and merchandise store.</p></a>
+      </div>
+
+      <!-- MDO3D / Lamar -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:var(--c-spiritual)"></div>
+        <h2 style="color:var(--c-spiritual)">MDO3D / Lamar Platforms</h2>
+        <span class="cv-count">22 properties</span>
+      </div>
+
+      <div class="cv-sub">Divination — mdo3d.com</div>
+      <div class="cv-grid-sm">
+        <a class="cc spiritual sm" href="https://oracle.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Oracle Cards</span><span class="bdg bdg-migrate">Migrating</span></div><span class="cc-url">oracle.mdo3d.com</span><p class="cc-desc">Mystical oracle card readings and spiritual guidance.</p></a>
+        <a class="cc spiritual sm" href="https://dreams.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Dream Interpreter</span><span class="bdg bdg-migrate">Migrating</span></div><span class="cc-url">dreams.mdo3d.com</span><p class="cc-desc">AI-powered dream interpretation and analysis.</p></a>
+        <a class="cc spiritual sm" href="https://tarot.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Tarot Cards</span><span class="bdg bdg-migrate">Migrating</span></div><span class="cc-url">tarot.mdo3d.com</span><p class="cc-desc">Tarot card readings with ancient wisdom.</p></a>
+        <a class="cc spiritual sm" href="https://numerology.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Numerology</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">numerology.mdo3d.com</span><p class="cc-desc">Numerology readings and life path analysis.</p></a>
+        <a class="cc spiritual sm" href="https://astrology.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Astrology</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">astrology.mdo3d.com</span><p class="cc-desc">Birth chart readings and horoscopes.</p></a>
+        <a class="cc spiritual sm" href="https://fengshui.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Feng Shui</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">fengshui.mdo3d.com</span><p class="cc-desc">Space harmony and energy flow analysis.</p></a>
+        <a class="cc spiritual sm" href="https://pastlife.mdo3d.com" target="_blank"><div class="cc-top"><span class="cc-name">Past Life</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">pastlife.mdo3d.com</span><p class="cc-desc">Past life regression and soul journey exploration.</p></a>
+      </div>
+
+      <div class="cv-sub">Fashion</div>
+      <div class="cv-grid-sm">
+        <a class="cc commerce sm" href="https://runwae.com" target="_blank"><div class="cc-top"><span class="cc-name">Runwae</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">runwae.com</span><p class="cc-desc">Fashion platform and lifestyle brand.</p></a>
+      </div>
+
+      <div class="cv-sub">Career Tools — rigor.design</div>
+      <div class="cv-grid-sm">
+        <a class="cc tech sm" href="https://resume.rigor.design" target="_blank"><div class="cc-top"><span class="cc-name">Resume Analyzer</span><span class="bdg bdg-migrate">Migrating</span></div><span class="cc-url">resume.rigor.design</span><p class="cc-desc">ATS resume scanner and optimizer.</p></a>
+        <a class="cc tech sm" href="https://cover.rigor.design" target="_blank"><div class="cc-top"><span class="cc-name">Cover Letter</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">cover.rigor.design</span><p class="cc-desc">AI-powered cover letter generator.</p></a>
+        <a class="cc tech sm" href="https://linkedin.rigor.design" target="_blank"><div class="cc-top"><span class="cc-name">LinkedIn Optimizer</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">linkedin.rigor.design</span><p class="cc-desc">LinkedIn profile optimization tool.</p></a>
+        <a class="cc tech sm" href="https://interview.rigor.design" target="_blank"><div class="cc-top"><span class="cc-name">Interview Prep</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">interview.rigor.design</span><p class="cc-desc">AI interview preparation coach.</p></a>
+        <a class="cc tech sm" href="https://salary.rigor.design" target="_blank"><div class="cc-top"><span class="cc-name">Salary Negotiation</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">salary.rigor.design</span><p class="cc-desc">Salary negotiation helper and research.</p></a>
+      </div>
+
+      <div class="cv-sub">Utility Tools — mdothree.com</div>
+      <div class="cv-grid-sm">
+        <a class="cc tech sm" href="https://pdf.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">PDF Tools</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">pdf.mdothree.com</span><p class="cc-desc">PDF merge, split, compress, convert.</p></a>
+        <a class="cc tech sm" href="https://image.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">Image Tools</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">image.mdothree.com</span><p class="cc-desc">Image resize, convert, compress.</p></a>
+        <a class="cc tech sm" href="https://qr.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">QR Generator</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">qr.mdothree.com</span><p class="cc-desc">QR code generator with customization.</p></a>
+        <a class="cc tech sm" href="https://json.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">JSON / YAML</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">json.mdothree.com</span><p class="cc-desc">JSON/YAML formatter and validator.</p></a>
+        <a class="cc tech sm" href="https://text.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">Text Tools</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">text.mdothree.com</span><p class="cc-desc">Word count, formatter, diff tool.</p></a>
+        <a class="cc tech sm" href="https://hash.mdothree.com" target="_blank"><div class="cc-top"><span class="cc-name">Hash Generator</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">hash.mdothree.com</span><p class="cc-desc">MD5, SHA-256, and other hash generators.</p></a>
+      </div>
+
+      <div class="cv-sub">Lead Tools — ronnascanner.com</div>
+      <div class="cv-grid-sm">
+        <a class="cc tech sm" href="https://leads.ronnascanner.com" target="_blank"><div class="cc-top"><span class="cc-name">Lead Scanner</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">leads.ronnascanner.com</span><p class="cc-desc">Business lead finder and scanner.</p></a>
+        <a class="cc tech sm" href="https://contacts.ronnascanner.com" target="_blank"><div class="cc-top"><span class="cc-name">Contact Finder</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">contacts.ronnascanner.com</span><p class="cc-desc">Contact discovery and enrichment.</p></a>
+        <a class="cc tech sm" href="https://emails.ronnascanner.com" target="_blank"><div class="cc-top"><span class="cc-name">Email Finder</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">emails.ronnascanner.com</span><p class="cc-desc">Email finder and verifier.</p></a>
+        <a class="cc tech sm" href="https://companies.ronnascanner.com" target="_blank"><div class="cc-top"><span class="cc-name">Company Scanner</span><span class="bdg bdg-planned">Planned</span></div><span class="cc-url">companies.ronnascanner.com</span><p class="cc-desc">Company data and insights scanner.</p></a>
+      </div>
+
+      <!-- Plugins -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:var(--c-spiritual)"></div>
+        <h2 style="color:var(--c-spiritual)">Plugins &amp; Extensions</h2>
+        <span class="cv-count">5 entries</span>
+      </div>
+      <div class="plugins-wrap">
+        <div class="cv-grid">
+          <div class="cc spiritual plugin"><div class="plugin-ico">🌐</div><div><div class="cc-name" style="margin-bottom:4px">Chrome Divination Tab</div><p class="cc-desc">Daily oracle readings on new tab. Connects to blacklabb.com</p><span class="bdg bdg-dev" style="margin-top:8px;display:inline-block">In Development</span></div></div>
+          <div class="cc spiritual plugin"><div class="plugin-ico">💬</div><div><div class="cc-name" style="margin-bottom:4px">Discord Divination Bot</div><p class="cc-desc">/oracle, /tarot, /dream commands for Discord servers.</p><span class="bdg bdg-dev" style="margin-top:8px;display:inline-block">In Development</span></div></div>
+          <div class="cc spiritual plugin"><div class="plugin-ico">✈️</div><div><div class="cc-name" style="margin-bottom:4px">Telegram Oracle Bot</div><p class="cc-desc">Oracle card pulls and daily readings via Telegram.</p><span class="bdg bdg-dev" style="margin-top:8px;display:inline-block">In Development</span></div></div>
+          <div class="cc spiritual plugin"><div class="plugin-ico">🛒</div><div><div class="cc-name" style="margin-bottom:4px">Shopify Oracle App</div><p class="cc-desc">Embed oracle widgets in Shopify stores.</p><span class="bdg bdg-planned" style="margin-top:8px;display:inline-block">Planned</span></div></div>
+          <div class="cc spiritual plugin"><div class="plugin-ico">📄</div><div><div class="cc-name" style="margin-bottom:4px">WordPress Divination Blocks</div><p class="cc-desc">Gutenberg blocks for spiritual readings integration.</p><span class="bdg bdg-planned" style="margin-top:8px;display:inline-block">Planned</span></div></div>
+        </div>
+      </div>
+
+      <!-- Blog -->
+      <div class="cv-section">
+        <div class="cv-dot" style="background:var(--c-blog)"></div>
+        <h2 style="color:var(--c-blog)">Blog</h2>
+      </div>
+      <div class="cv-grid-sm">
+        <a class="cc blog" href="https://latarence.com/ludwig.html" target="_blank">
+          <div class="cc-top"><span class="cc-name">Ludwig</span><span class="bdg bdg-active">Active</span></div>
+          <span class="cc-url">latarence.com/ludwig</span>
+          <p class="cc-desc">The Latarence blog. Essays, writing, and ideas.</p>
+          <div class="cc-tags"><span class="chip">Blog</span><span class="chip">Writing</span></div>
+        </a>
+      </div>
+
+    </div>
+  </div><!-- /card-view -->
+
+
+  <!-- Footer -->
+  <footer class="foot">
+    <span class="foot-brand">Latarence Ecosystem · Mar 2026</span>
+    <nav class="foot-links">
+      <a href="https://latarence.com">Home</a>
+      <a href="https://latarence.ai">JARVIS</a>
+      <a href="https://ahl.app">AHL</a>
+    </nav>
+  </footer>
+
+</div>
+
+<script>
+function setView(v) {
+  const list = document.getElementById('list-view');
+  const card = document.getElementById('card-view');
+  const btnList = document.getElementById('btn-list');
+  const btnCard = document.getElementById('btn-card');
+  if (v === 'list') {
+    list.style.display = 'block';
+    card.style.display = 'none';
+    btnList.classList.add('active');
+    btnCard.classList.remove('active');
+    document.body.classList.remove('dark');
+  } else {
+    list.style.display = 'none';
+    card.style.display = 'block';
+    btnCard.classList.add('active');
+    btnList.classList.remove('active');
+    document.body.classList.add('dark');
+  }
+  try { localStorage.setItem('eco-view', v); } catch(e) {}
+}
+try {
+  const saved = localStorage.getItem('eco-view');
+  if (saved) setView(saved);
+} catch(e) {}
+</script>
+</body>
+</html>
